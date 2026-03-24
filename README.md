@@ -1,116 +1,63 @@
 # Tailnote Jump
 
-Tailnote Jump helps you navigate markdown numeric references.
-When your cursor is on `[num]`, the extension jumps to the tailnote target in the same file.
+在 Markdown 中，光标落在 `[num]` 时，跳到同文件中该编号的目标位置。
 
-## What It Does
+## 规则
 
-This extension provides three capabilities in Markdown files:
+1. 先找尾注行：`^\s*\[num\](\s|$|:|：)`，取最后一个。
+2. 如果没找到尾注行，退回到最后一个 `[num]`。
+3. 如果当前就在目标上，不跳转。
 
-- Jump: go to tailnote target.
-- Peek: open tailnote target in peek view.
-- Hover: preview target tailnote line on mouse hover.
+## 打包 VSIX（创建安装包）
 
-## Matching Rule
+在项目根目录执行：
 
-When cursor is on `[num]`:
-
-1. Search current file for tailnote-like lines that start with `[num]` (optional leading spaces), and where `[num]` is followed by whitespace, end-of-line, `:`, or `：`.
-2. Use the last such match as the target.
-3. If no tailnote-like line exists, fallback to the last `[num]` occurrence in the file.
-4. If cursor is already on the target, no jump is performed.
-
-Examples considered as tailnote-like lines:
-
-```md
-[1] tailnote text
-   [1] tailnote text
-[1]: tailnote text
+```powershell
+npm install
+npm run compile
+node D:\nodejs\node_modules\npm\bin\npm-cli.js exec --cache .npm-cache --package @vscode/vsce -- vsce package
 ```
 
-## Install In VS Code
+产物：
 
-### Option A: Install from VSIX in VS Code UI
+- `tailnote-jump-0.0.1.vsix`
 
-1. Open VS Code.
-2. Open Extensions view (`Ctrl+Shift+X`).
-3. Click the `...` menu in Extensions panel.
-4. Choose `Install from VSIX...`.
-5. Select your package file, for example:
-   `F:\tests\plugin\tailnote-jump-0.0.1.vsix`
-6. Run `Developer: Reload Window` after install.
+## 安装到 VS Code
 
-### Option B: Install from command line
+### 方式 A：VS Code 界面
+
+1. 打开扩展面板（`Ctrl+Shift+X`）。
+2. 右上角 `...` -> `Install from VSIX...`。
+3. 选择 `tailnote-jump-0.0.1.vsix`。
+4. 执行 `Developer: Reload Window`。
+
+### 方式 B：命令行
 
 ```powershell
 code --install-extension "F:\tests\plugin\tailnote-jump-0.0.1.vsix" --force
 ```
 
-### Install to a custom global extensions directory
-
-If you do not want the default extensions location:
+## 自定义全局扩展目录（可选）
 
 ```powershell
 code --extensions-dir "D:\VSCodeExtensions" --install-extension "F:\tests\plugin\tailnote-jump-0.0.1.vsix" --force
 ```
 
-Important: start VS Code with the same `--extensions-dir` to use extensions from that directory.
+之后启动 VS Code 也要带同一个目录：
 
 ```powershell
 code --extensions-dir "D:\VSCodeExtensions"
 ```
 
-## Commands And Keybindings
+## 用法
 
-- `Tailnote Jump: Jump To Tailnote`
-  - Windows/Linux: `Ctrl+Shift+J`
-  - macOS: `Cmd+Shift+J`
-- `Tailnote Jump: Peek Tailnote`
-  - Windows/Linux: `Ctrl+Shift+Alt+J`
-  - macOS: `Cmd+Shift+Alt+J`
+- `F12`：跳转（本插件的 DefinitionProvider）
+- `Alt+F12`：Peek Definition
+- `Ctrl+Shift+J` / `Cmd+Shift+J`：Jump 命令
+- `Ctrl+Shift+Alt+J` / `Cmd+Shift+Alt+J`：Peek 命令
+- Hover 到 `[num]`：预览目标尾注行
 
-Also supported through DefinitionProvider:
+## 最短排错
 
-- `F12` (Go to Definition)
-- `Alt+F12` (Peek Definition)
-- `Ctrl/Cmd + Click`
-
-## Quick Test
-
-Use this markdown sample:
-
-```md
-Body mention [1] here.
-
-Another [1] in middle.
-
-[1] final tailnote target
-```
-
-Place cursor on the first `[1]` and test:
-
-- `Ctrl+Shift+J` -> should jump to the last target line.
-- `Ctrl+Shift+Alt+J` -> should open peek.
-- Hover on `[1]` -> should show preview line.
-
-## Troubleshooting
-
-- `Ctrl+Shift+J` does nothing:
-  - Check keybinding conflicts in `Keyboard Shortcuts`.
-  - Run command manually from Command Palette: `Tailnote Jump: Jump To Tailnote`.
-- `F12` says no definition:
-  - Confirm file language mode is Markdown.
-  - Confirm cursor is on `[num]` token.
-  - Check that the file has at least one matching target for the same number.
-- Extension installed but no effect:
-  - Run `Developer: Reload Window`.
-  - Verify extension is enabled in Extensions view.
-
-## Development
-
-```bash
-npm install
-npm run compile
-```
-
-Press `F5` in VS Code to launch Extension Development Host.
+- 快捷键没反应：检查 Keyboard Shortcuts 是否冲突，或在命令面板执行 `Tailnote Jump: Jump To Tailnote`。
+- 仍提示无定义：确认文件语言是 Markdown，光标在 `[num]` 上，且文件中存在同编号目标。
