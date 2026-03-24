@@ -12,7 +12,8 @@
   ],
   "activationEvents": [
     "onLanguage:markdown",
-    "onCommand:tailnoteJump.jumpToTailnote"
+    "onCommand:tailnoteJump.jumpToTailnote",
+    "onCommand:tailnoteJump.peekTailnote"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -20,13 +21,23 @@
       {
         "command": "tailnoteJump.jumpToTailnote",
         "title": "Tailnote Jump: Jump To Tailnote"
+      },
+      {
+        "command": "tailnoteJump.peekTailnote",
+        "title": "Tailnote Jump: Peek Tailnote"
       }
     ],
     "keybindings": [
       {
         "command": "tailnoteJump.jumpToTailnote",
-        "key": "ctrl+alt+j",
-        "mac": "cmd+alt+j",
+        "key": "ctrl+shift+j",
+        "mac": "cmd+shift+j",
+        "when": "editorTextFocus && editorLangId == markdown"
+      },
+      {
+        "command": "tailnoteJump.peekTailnote",
+        "key": "ctrl+shift+alt+j",
+        "mac": "cmd+shift+alt+j",
         "when": "editorTextFocus && editorLangId == markdown"
       }
     ]

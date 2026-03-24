@@ -102,9 +102,32 @@ function resolveTargetLocation(
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+  const selector: vscode.DocumentSelector = { language: "markdown" };
+
   const provider: vscode.DefinitionProvider = {
     provideDefinition(document, position) {
       return resolveTargetLocation(document, position);
+    }
+  };
+
+  const hoverProvider: vscode.HoverProvider = {
+    provideHover(document, position) {
+      const ref = getReferenceAtPosition(document, position);
+      if (!ref) {
+        return null;
+      }
+
+      const location = resolveTargetLocation(document, position);
+      if (!location) {
+        return null;
+      }
+
+      const lineText = document.lineAt(location.range.start.line).text.trim();
+      const md = new vscode.MarkdownString();
+      md.appendMarkdown(`**Tailnote [${ref.num}]**  \n`);
+      md.appendCodeblock(lineText || `[${ref.num}]`, "markdown");
+      md.appendMarkdown(`\nLine ${location.range.start.line + 1}`);
+      return new vscode.Hover(md, ref.range);
     }
   };
 
@@ -135,9 +158,40 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   );
 
+  const peekCommand = vscode.commands.registerCommand(
+    "tailnoteJump.peekTailnote",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
+
+      const location = resolveTargetLocation(
+        editor.document,
+        editor.selection.active
+      );
+      if (!location) {
+        vscode.window.showInformationMessage(
+          "Tailnote Jump: 当前光标位置没有可预览的尾注。"
+        );
+        return;
+      }
+
+      await vscode.commands.executeCommand(
+        "editor.action.peekLocations",
+        editor.document.uri,
+        editor.selection.active,
+        [location],
+        "peek"
+      );
+    }
+  );
+
   context.subscriptions.push(
-    vscode.languages.registerDefinitionProvider({ language: "markdown" }, provider),
-    jumpCommand
+    vscode.languages.registerDefinitionProvider(selector, provider),
+    vscode.languages.registerHoverProvider(selector, hoverProvider),
+    jumpCommand,
+    peekCommand
   );
 }
 
