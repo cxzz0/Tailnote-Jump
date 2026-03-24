@@ -1,0 +1,44 @@
+{
+  "name": "tailnote-jump",
+  "displayName": "Tailnote Jump",
+  "description": "Jump from [num] to the last matching tailnote line in the current Markdown file.",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown",
+    "onCommand:tailnoteJump.jumpToTailnote"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "tailnoteJump.jumpToTailnote",
+        "title": "Tailnote Jump: Jump To Tailnote"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "tailnoteJump.jumpToTailnote",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "editorTextFocus && editorLangId == markdown"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.4.0"
+  }
+}
